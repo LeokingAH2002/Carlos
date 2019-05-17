@@ -1,0 +1,440 @@
+
+
+Mensajes : 83
+Fecha de inscripción : 15/03/2013
+
+Tutorial pyrit para Kali Linux Empty	
+MensajeTema: Tutorial pyrit para Kali Linux   Tutorial pyrit para Kali Linux EmptyMar Mayo 28, 2013 7:55 am	
+Pyrit puede entender los archivos de captura de paquetes en formato pcap. Estos archivos contienen básicamente lo que fue capturado desde el aire. Nuestro primer paso importante en este tutorial es dejar Pyrit analizar uno de los archivos de captura y darnos un poco de información sobre el contenido.
+
+
+Sintaxis
+
+pyrit [opciones] commando
+El comportamiento exacto de opciones depende del comando y se describe en la sección específica más adelante.
+
+
+Opciones
+
+• -b BSSID
+Especifica un BSSID. Puede ser utilizado para restringir a ciertos comandos-puntos de acceso.
+
+• -e ESSID
+Especifica el ESSID. Comandos general se refieren a todos los ESSIDs en la base de datos si se omite esta opción.
+
+• -i infile
+Especifica un nombre de archivo para leer, el nombre de archivo especial '-' se puede utilizar para la entrada estándar. El archivo puede ser comprimido con gzip, en cuyo caso su nombre debe terminar en ". Gz 'para la descompresión transparente.
+
+• -o outfile
+Especifica un nombre de archivo para escribir, el nombre de archivo especial '-' se puede utilizar para la salida estándar. Los nombres de archivo que terminen en causa Pyrit. Gz 'a gzip-comprimir los archivos sobre la marcha.
+
+• -r capture-file
+Especifica un archivo de captura de paquetes en formato pcap (posiblemente con gzip) o un dispositivo (por ejemplo, 'wlan0') para capturar a.
+
+• -u URL
+Especifica la dirección URL del dispositivo de almacenamiento en forma de ':/ conductor / usuario: contraseña @ host: puerto / base de datos'. Pyrit puede utilizar el sistema de archivos, un mando a distancia Pyrit-Relay-Server y SQL-Bases de datos como almacenamiento. 'File :/ /' El conductor se refiere al propio almacenamiento del sistema de archivos basado en la Pyrit, 'http://' se conecta a un Pyrit-Relay-Server y el resto de las direcciones URL se pasan directamente a SQLAlchemy . Es posible que desee para ver esta documentación para obtener más información acerca de la sintaxis. El almacenamiento URL por defecto también se puede especificar mediante la tecla 'default_storage' en el archivo de configuración de Pyrit (normalmente '~ / .pyrit / config')
+
+• --all-handshakes
+Los comandos attack_batch, attack_db, attack_cowpatty y attack_passthrough utilizan automáticamente el sencillo apretón de manos de la más alta calidad solamente. En algunos casos, incluso esta apretón de manos puede haber sido indebidamente reconstruido a partir de los datos capturados, lo que hace el ataque inútil. En caso de que más de un EAPOL-apretón de manos se reconstruye desde el archivo de captura, la opción - all-apretones de manos se pueden utilizar para atacar a todos los apretones de manos reconstruibles partir de los datos capturados. A continuación se describe el comportamiento exacto de las órdenes afectadas por esta opción.
+
+
+Comandos
+
+• analyze
+Analizar uno o varios archivos de captura de paquetes (en formato pcap, posiblemente con gzip) y trate de detectar-los puntos de acceso, estaciones y EAPOL-apretones de manos. Por ejemplo:
+
+pyrit -r "test*.pcap" analyze
+
+
+Pyrit muestra una lista de los puntos de acceso, estaciones asociadas y EAPOL-apretones de manos que podrían ser identificados a partir de los datos capturados. Apretones de manos se muestran ordenados por su "calidad":
+
+• Bueno
+El apretón de manos incluye el desafío desde el punto de acceso-, la respuesta de la estación y la confirmación del punto de acceso-.
+
+• Factible
+El apretón de manos incluye la respuesta de la estación y la confirmación de la-Punto de Acceso. El reto no fue capturado.
+
+• Malo
+El apretón de manos incluye el desafío desde el punto de acceso, y la respuesta de la estación. La confirmación no fue capturado.
+Apretones de manos de la misma calidad están clasificadas por lo cerca que los paquetes que componen el apretón de manos son el uno al otro.
+
+• attack_batch
+Atacar un EAPOL-apretón de manos que se encuentra en el archivo de captura de paquetes (s) dada por la opción-r con las llaves maestras por parejas y contraseñas almacenadas en la base de datos. Las opciones-b y-e se pueden utilizar para especificar el-Punto de Acceso para atacar; se recogió automáticamente si se omiten las dos opciones. La contraseña se escribe en el nombre de archivo dado por la opción-o, si se especifica. Por ejemplo:
+
+pyrit -r test.pcap -e MyNetwork -b 00:de:ad:c0:de:00 -o MyNetworkPassword.txt attack_batch
+
+Por parejas claves maestras que han sido previamente calculados y almacenados en la base de datos se han tomado de allí, todas las demás contraseñas se convierten en sus respectivas llaves maestras por parejas y se agregan a la base de datos para su posterior reutilización. ESSIDs se crean automáticamente en la base de datos si es necesario.
+
+Pyrit trabaja por la lista de reconstruidas EAPOL-apretones de manos en caso de que la opción - se suministra todo apretones de manos.
+
+• attack_cowpatty
+Atacar un EAPOL-apretón de manos que se encuentra en el archivo de captura de paquetes (s) dada por la opción-r por parejas utilizando claves maestras de un archivo cowpatty similar (por ejemplo, genera genpmk / export_cowpatty) dada por la opción-i. Las opciones-b y-e se pueden utilizar para especificar el-Punto de Acceso para atacar; se recogió automáticamente si se omiten las dos opciones. La contraseña se escribe en el nombre de archivo dado por la opción-o, si se especifica. El fichero cowpatty puede ser comprimido con gzip y debe coincidir con el ESSID elegido. Por ejemplo:
+
+pyrit -r test.pcap -e MyOwnNetwork -i MyOwnNetwork.cow.gz -o - attack_cowpatty
+
+Propia base de datos de Pyrit no es tocado por attack_cowpatty
+
+
+Pyrit ataca todos EAPOL-apretones de manos al mismo tiempo, si la opción - se suministra todo apretones de manos. Esto reducirá througput (por ejemplo, 33% a lo largo en el caso de tres apretones de manos).
+
+• attack_db
+Atacar un EAPOL-apretón de manos que se encuentra en el archivo de captura de paquetes (s) dada por la opción-r con las llaves maestras por pares almacenados en la base de datos. Las opciones-b y-e se pueden utilizar para especificar el-Punto de Acceso para atacar; se recogió automáticamente si se omiten las dos opciones. La contraseña se escribe en el nombre de archivo dado por la opción-o, si se especifica. Por ejemplo:
+
+pyrit -r test.pcap -e MyOtherNetwork attack_db
+
+Sólo las claves maestras de por parejas que se han computado previamente y se almacenan en la base de datos son utilizados por attack_db.
+
+Pyrit trabaja por la lista de reconstruidas EAPOL-apretones de manos en caso de que la opción - se suministra todo apretones de manos.
+
+• attack_passthrough
+Atacar un EAPOL-apretón de manos que se encuentra en el archivo de captura de paquetes (s) dada por la opción-r con las contraseñas leídos desde el archivo dado por la opción-i. Las opciones-b y-e se pueden utilizar para especificar el-Punto de Acceso para atacar; se recogió automáticamente si se omiten las dos opciones. La contraseña se escribe en el nombre de archivo dado por la opción-o, si se especifica. Por ejemplo:
+
+pyrit -r test.pcap -b 00:de:ad:be:ef:00 -i words.txt attack_passthrough
+
+Este comando evita base de datos de Pyrit y debe utilizarse sólo si el espacio de almacenamiento es un problema (por ejemplo, en el LiveCD). Usted debe considerar el uso de attack_batch lo contrario.
+
+Pyrit ataca todos EAPOL-apretones de manos al mismo tiempo, si la opción - se suministra todo apretones de manos.
+
+• batch
+Comience a traducir todas las contraseñas en la base de datos en sus respectivos Pairwise claves maestras y almacenar los resultados en la base de datos. La opción-e puede ser utilizado para restringir este comando a un único ESSID, si está omitido, todos los ESSIDs se procesan uno tras otro en orden indefinido. Por ejemplo:
+
+pyrit -e NETGEAR batch
+
+
+La opción-o se puede utilizar para especificar un nombre de archivo de los resultados, además, deberán estar escritos en formato binario cowpatty 's. La opción-e se convierte en obligatoria y el ESSID se crea automáticamente en la base de datos si es necesario. Por parejas claves maestras que han sido previamente calculados y almacenados en la base de datos se exportan desde allí sin más transformación. Paradas Pyrit y salidas si un IOError se eleva al escribir en el archivo especificado. Esto hace que sea muy conveniente para los resultados de tuberías directamente a otros programas, pero también mantener para su uso posterior. Por ejemplo:
+
+pyrit -e NETGEAR -o - batch | cowpatty -d - -r wpatestcapture.cap -s NETGEAR
+
+• benchmark
+Determinar el máximo rendimiento del hardware disponible computando maniquí-resultados. Por ejemplo:
+
+pyrit benchmark
+
+• check_db
+Desembale la base de datos y comprobar si hay errores como la corrupción de datos o errores de referencia. Esta función no comprueba el valor de los resultados calculados (véase verificar). Por ejemplo:
+
+pyrit check_db
+
+• create_essid
+Añadir nuevas ESSIDs a la base de datos. Una sola ESSID puede ser dada por la opción-e. Múltiples ESSIDs se pueden crear mediante el suministro de un archivo (una por línea), a través de la opción-i. Vuelva a la creación de un ESSID existente no da lugar a un error. Por ejemplo:
+
+pyrit -e NETGEAR create_essid
+
+• delete_essid
+Elimine el ESSID dado por-e de la base de datos. Esto incluye todos los resultados que pueden haber sido almacenados para que ESSID en particular. Por ejemplo:
+
+pyrit -e NETGEAR delete_essid
+
+• eval
+Contar todas las contraseñas disponibles, todos ESSIDs y sus respectivos resultados en la base de datos. Por ejemplo:
+
+Pyrit eval
+
+• export_passwords
+Escribe todas las contraseñas que se almacenan actualmente en la base de datos a un nuevo archivo dado por-o. Las contraseñas son terminados por una sola nueva línea de caracteres (\ n). Los archivos existentes se sobrescriben sin confirmación. Por ejemplo:
+
+pyrit -o myword.txt.gz export_passwords
+
+• export_cowpatty
+Escribe todos los resultados almacenados actualmente en la base de datos para el ESSID dado por-e para el archivo dado por-o en formato binario cowpatty 's. Los archivos existentes se sobrescriben sin confirmación. Por ejemplo:
+
+pyrit -o NETGEAR.cow -e NETGEAR export_cowpatty
+
+• export_hashdb
+Escribe todos los resultados almacenados actualmente en la base de datos a la base de datos airolib-ng dada por-o. La base de datos se crea con un diseño de tabla por defecto si el archivo no existe todavía. La opción-e se puede utilizar para limitar la exportación a un único ESSID. Por ejemplo:
+
+pyrit -o NETGEAR.db-e NETGEAR export_hashdb
+
+• import_passwords
+Lea el archivo dado por-i e importar una contraseña por línea a la base de datos. Las contraseñas pueden contener todos los caracteres (incluyendo nulo bytes) además de la terminación de nueva línea de caracteres \ n. Se ignoran las contraseñas que no son adecuados para ser utilizados con WPA-/WPA2-PSK. Almacenamiento ejecución de Pyrit garantiza que todas las contraseñas siguen siendo únicos en toda la base de datos. Por ejemplo:
+
+pyrit -i dirty_words.txt import_passwords
+
+• import_unique_passwords
+Lea el archivo dado por-i e importar una contraseña por línea a la base de datos. Las contraseñas pueden contener todos los caracteres (incluyendo nulo bytes) además de la terminación de nueva línea de caracteres \ n. Se ignoran las contraseñas que no son adecuados para ser utilizados con WPA-/WPA2-PSK. Este comando no comprueba si está duplicando las contraseñas en el archivo o entre el archivo y la base de datos, sino que debe ser utilizado con precaución para evitar que la base de datos desde el envenenamiento con claves duplicadas. Este comando sin embargo puede ser mucho más rápido que import_passwords. Por ejemplo:
+
+pyrit-i dirty_words.txt import_unique_passwords
+
+• list_cores
+Mostrar una lista de todos los módulos de hardware disponibles Pyrit utiliza actualmente. Por ejemplo:
+
+pyrit list_cores
+
+• list_essids
+Mostrar una lista de todos ESSIDs almacenados actualmente en la base de datos. Esta función es más rápido que eval en caso de que no es necesario conocer el número de resultados calculados. Por ejemplo:
+
+pyrit list_essids
+
+• passthrough
+Lea las contraseñas del archivo dado por-i y calcular sus pareadas claves maestras para el ESSID dado por-e. Los resultados se escriben en el archivo especificado por-o en formato binario cowpatty 's y no se almacenan en la base de datos para su uso posterior. Este comando ello elude la base de datos y se debe usar sólo si el espacio de almacenamiento es un problema (por ejemplo, cuando se utiliza Pyrit en un LiveCD). El-comando por lotes proporciona exactamente la misma funcionalidad que de paso a través, pero puede dar un rendimiento mucho mejor ya que los resultados se pueden leer a partir de la base de datos en lugar de recalcularlas. Por ejemplo:
+
+pyrit -i dirty_words.txt.gz -e NETGEAR -o - passthrough | cowpatty -d - -r wpatestcapture.cap -s NETGEAR
+
+• relay
+Inicie el servidor para transmitir otro dispositivo de almacenamiento a través de XML-RPC, otros Pyrit-clientes pueden utilizar el servidor como dispositivo de almacenamiento. Esto permite tener acceso a la red basado en fuente de almacenamiento que no proporcionan acceso de red por su cuenta (como file :/ / y sqlite :/ /) u ocultar una base de datos SQL-detrás de un firewall y dejar que los clientes acceso múltiple que la base de datos sólo a través de Pyrit de RPC-interface. El TCP puerto 17934 debe estar abierto para que esta opción funcione. Por ejemplo, en el servidor (donde la base de datos es):
+
+pyrit-u sqlite :/ / / / var / local / relé pyrit.db
+... y el cliente (donde la gran GPU es):
+pyrit-u http://192.168.0.100:17934 lotes
+
+• selftest
+Ejecutar una extensa autocomprobación durante unos 60 segundos. Esta prueba incluye toda la programación-mecanismo y todos los núcleos que se enumeran por list_cores. Puede utilizar esta función para detectar el hardware módulos rotos o red-clientes maliciosos. Por ejemplo:
+
+pyrit selftest
+
+• serve
+Inicie un servidor que proporciona acceso al hardware de computación local para ayudar a otros-clientes Pyrit. Dirección IP del servidor, debe añadirse a 'archivo de configuración (por lo general "los clientes ~ / .pyrit / config') como una lista separada por espacio bajo known_clients. Estos clientes 'rpc_server-ajuste también se debe establecer en' true '. El TCP y UDP-Port 17935 deben ser accesibles. Por ejemplo, en el servidor (donde la GPU es):
+
+pyrit serve
+... y los clientes (la dirección IP del servidor de ha sido añadido a 'known_clients "y rpc_server está establecido en' true '):
+pyrit -r test.pcap -b 00:de:ad:be:ef:00 -i words.txt attack_passthrough
+
+• strip
+Analizar uno o más archivos de paquetes de captura propuestos por la opción-r, extraer sólo los paquetes que son necesarios para la detección EAPOL-apretón de manos y escribir un nuevo vertedero en el nombre de archivo dado por la opción-o. Las opciones-e y-b se pueden utilizar para filtrar determinados-puntos de acceso. Por ejemplo:
+
+pyrit -r "large_dumps_*.pcap" -e MyNetwork -o tiny_compressed_dump_MyNetwork.dump.gz strip
+
+• stripLive
+Analizar un archivo de captura de paquetes dada por la opción-r, extraer sólo los paquetes que son necesarios para la detección EAPOL-apretón de manos y escribir un nuevo vertedero para el archivo dado por la opción-o. Este comando se diferencia de la tira como el archivo de captura puede ser cualquier dispositivo de caracteres incluyendo tomas de corriente y otros pseudo-archivos que se parecen a los archivos en formato pcap. StripLive escribe paquetes relevantes para el nuevo archivo dado por-o como llegan en lugar de tratar de leer el archivo-captura todo primero.
+
+pyrit -r /temp/kismet_dump -o small_dump.pcap stripLive
+
+• verify
+Elegir al azar el 10% de los resultados almacenados en la base de datos y verificar su valor por recálculo. Usted necesita esta función si sospecha hardware roto o red-clientes maliciosos. Por ejemplo:
+
+pyrit -e NETGEAR verify
+
+
+Estado de salida
+
+Si el comando se ejecuta correctamente, el código de salida del proceso Pyrit se establece en 0, de lo contrario se pone a 1 y (generalmente) un mensaje de error o una pitón-rastreo se escribe en stderr. Los siguientes comandos también indican una condición de error en algunos casos:
+
+• analyze
+No al menos un EAPOL-handshake válida podría ser detectado.
+
+• attack_passthrough, attack_batch, attack_db and attack_cowpatty
+La contraseña no se puede conocer.
+
+• verify
+Por lo menos una unidad de trabajo contenía resultados no válidos.
+
+• check_db
+No se encontraron errores en la base de datos (y posiblemente fijos).
+
+
+Análisis de un archivo de captura
+
+Pruebe al siguiente comando para analizar el archivo wpapsk-linksys.dump.gz:
+
+pyrit -r wpapsk-linksys.dump.gz analyze
+
+Pyrit debe responder con una producción muy similar a lo siguiente:
+
+Pyrit 0.3.0 (C) 2008-2010 Lukas Lueg http://pyrit.googlecode.com
+This code is distributed under the GNU General Public License v3+
+
+Parsing file 'wpapsk-linksys.dump.gz' (1/1)...
+587 packets (587 802.11-packets), 1 APs
+
+#1: AccessPoint 00:0b:86:c2:a4:85 ('linksys')
+#0: Station 00:13:ce:55:98:ef, handshake found
+#1: Station 01:00:5e:7f:ff:fa
+#2: Station 01:00:5e:00:00:16
+
+Pyrit ha analizado exitosamente el archivo de captura y se encontró con un AccessPoint BSSID 00:0 b: 86: c2: a4: 85 y ESSID 'linksys' y tres estaciones se comunican con el Punto de Acceso. La clave de la negociación (conocido como el cuatro vías handshake) entre la estación con MAC doce y trece: ce: 55:98: ef y el Punto de Acceso también se ha registrado en el archivo de captura. Podemos utilizar los datos de este apretón de manos para adivinar la contraseña que se utiliza para proteger la red.
+
+Tenga en cuenta que Pyrit puede leer / escribir archivos comprimidos con gzip de forma transparente, lo que resulta muy útil cuando se trata de grandes listas de palabras o cowpatty-archivos que pueden tardar hundrets de megabytes.
+
+
+Atacar a un apretón de manos y revelar la contraseña
+
+Ahora usamos el ejemplo de lista de palabras dict.gz y dejamos Pyrit adivinar la contraseña que se utiliza en la clave de la negociación entre AccessPoint 00:0 b: 86: c2: a4: 85 y la estación de doce y trece: ce: 55:98: ef. La contraseña correcta debe conseguir detectado, si es parte de la lista. En nuestros términos, esto se conoce como un "passthrough-ataque". Ejecute el siguiente comando:
+
+pyrit-r wpapsk-linksys.dump.gz-i dict.gz-b 00:0 b: 86: c2: a4: 85 attack_passthrough
+
+Esto le dice a Pyrit tomar la captura de archivos wpapsk-linksys.dump.gz y atacar el teclado negociación con AccessPoint 00:0 b: 86: c2: a4: 85 el uso del diccionario-file dict.gz.
+
+Tenga en cuenta que no siempre tiene que decirle Pyrit que AccessPoint para elegir el archivo de captura - Pyrit lo general será capaz de darse cuenta de eso por sí mismo.
+
+Usted debe obtener una respuesta muy similar a la siguiente:
+
+Pyrit 0.3.0 (C) 2008-2010 Lukas Lueg http://pyrit.googlecode.com
+This code is distributed under the GNU General Public License v3+
+
+Parsing file 'wpapsk-linksys.dump.gz' (1/1)...
+587 packets (587 802.11-packets), 1 APs
+
+Tried 4091 PMKs so far; 935 PMKs per second.
+
+The password is 'dictionary'.
+
+Nosotros hemos revelado con éxito que la contraseña utilizada para proteger la red 00:0 b: 86: c2: a4: 85 es "diccionario" ...
+
+
+Interlude: Excluyendo un archivo de captura de costra innecesaria
+
+Capturar los archivos suelen ser los vertederos simples del tráfico capturados directamente del aire. Para nuestro propósito, sólo estamos interesados ​​en una muy pequeña fracción del tráfico entre el Punto de Acceso y de la estación. Pyrit puede ayudar a reducir el tamaño de un archivo de captura de paquetes a través del análisis del tráfico y tirar todos los paquetes que no son de utilidad para nosotros. Terminamos con un nuevo archivo de captura muy pequeña que todavía tiene toda la información valiosa y es utilizable con otras herramientas como Wireshark.
+
+Tenga en cuenta que pelar un archivo de captura no es necesario. Su único propósito es hacer la vida un poco más fácil cuando se trata de archivos de captura de gran tamaño.
+
+Nuestro ejemplo original tiene 587 paquetes y un tamaño de alrededor de 13kb. Ejecute el siguiente comando:
+
+pyrit -r wpapsk-linksys.dump.gz -o wpapsk-linksys_stripped.dump.gz strip
+
+Usted debe obtener una respuesta similar a la siguiente:
+
+Pyrit 0.3.0 (C) 2008-2010 Lukas Lueg http://pyrit.googlecode.com
+This code is distributed under the GNU General Public License v3+
+
+Parsing file 'wpapsk-linksys.dump.gz' (1/1)...
+587 packets (587 802.11-packets), 1 APs
+
+#1: AccessPoint 00:0b:86:c2:a4:85 ('linksys')
+#0: Station 00:13:ce:55:98:ef (1 authentications)
+
+New pcap-file 'wpapsk-linksys_stripped.dump.gz' written (4 out of 587 packets)
+
+El nuevo archivo de captura wpapsk-linksys_stripped.dump.gz tiene un tamaño de sólo unos cientos de bytes y contiene sólo tres de la llave de la negociación (utilizado para atacar a la contraseña) y un faro-frame (utilizado para detectar ESSID de la red).
+
+
+Trabajar con bases de datos de Pyrit
+
+Como usted ya sabe, adivinando la contraseña utilizada en un WPA (2)-PSK key-negociación es una tarea de cálculo intensivo. Durante este proceso, el 99.9% de los ciclos de la CPU tiene que ser gastado para calcular lo que se conoce como la llave maestra por parejas, una clave de 256 bits derivado del ESSID y una contraseña con el algoritmo SHA1-HMAC-PBKDF2. Una de las principales debilidades de la WPA (2)-PSK es que la llave maestra por parejas no tiene elementos que son únicos a la hora de la llave-negociación entre AccessPoint y de la estación. Es ello posible a fin de calcular la clave maestra en pares y almacenarla para su uso posterior. En el momento de atacar a una tecla de la negociación, nos quedamos con el 0,1% restante de lo que depende de los datos de sesión único. Por tanto, es muy valorable para un atacante para pre-calcular grandes mesas de dos a dos llaves maestras para ESSIDs comunes.
+
+Aquí es donde la base de datos de Pyrit patadas pulg Es capaz de almacenar ESSIDs, contraseñas y sus correspondientes llaves maestras por parejas, posiblemente creciendo hasta el tamaño de hundrets de millones de registros. A partir de una instalación nueva de Pyrit, su base de datos es muy probable que estar vacío. Ejecute el siguiente comando para obtener una visión general:
+
+pyrit eval
+
+Pyrit debe responder de esta manera:
+
+Pyrit 0.3.0 (C) 2008-2010 Lukas Lueg http://pyrit.googlecode.com
+This code is distributed under the GNU General Public License v3+
+
+Connecting to storage at 'file://'... connected.
+Passwords available: 0
+
+Nada especial que ver, sin embargo.
+
+Por favor, tenga en cuenta el valor por defecto de almacenamiento del sistema de archivos basado en 'file :/ /'. Vamos a llegar a las bases de datos SQL después.
+
+
+Rellenar y procesamiento por lotes de la base de datos
+
+Con el fin de hacer que la base de datos muy útil, vamos a llenarla con las contraseñas de una lista de palabras. Ejecute el siguiente comando:
+
+pyrit -i dict.gz import_passwords
+
+Pyrit leerá 'dict.gz' el archivo y guardar la lista de palabras en su formato de base de datos interna. Usted debe obtener una respuesta similar a la siguiente:
+
+Pyrit 0.3.0 (C) 2008-2010 Lukas Lueg http://pyrit.googlecode.com
+This code is distributed under the GNU General Public License v3+
+
+Connecting to storage at 'file://'... connected.
+10202 lines read. Flushing buffers...
+All done.
+
+Tenga en cuenta que puede agregar más contraseñas para la base de datos más adelante, el comando 'import_passwords' asegura que los duplicados dentro de la lista de palabras o entre la lista de palabras y de la base de datos se desechó y no se almacena de nuevo. Por ahora, ejecute el comando 'eval' de nuevo para ver cómo la base de datos se ha rellenado con contraseñas de 'dict.gz'. Usted debe obtener una salida similar a la siguiente:
+
+Pyrit 0.3.0 (C) 2008-2010 Lukas Lueg http://pyrit.googlecode.com
+This code is distributed under the GNU General Public License v3+
+
+Connecting to storage at 'file://'... connected.
+Passwords available: 4078
+
+Se dará cuenta de que Pyrit sólo ha almacenado 4.078 de las 10.202 contraseñas del archivo. Pyrit ha filtrado automáticamente contraseñas que no son adecuados para WPA (2)-PSK y solucionado duplicados. Ahora que ya tenemos algunas contraseñas en la base de datos, tenemos que crear un ESSID. Ejecute el siguiente comando:
+
+pyrit -e linksys create_essid
+
+... y obtendrá una salida como la siguiente:
+
+Pyrit 0.3.0 (C) 2008-2010 Lukas Lueg http://pyrit.googlecode.com
+This code is distributed under the GNU General Public License v3+
+
+Connecting to storage at 'file://'... connected.
+Created ESSID 'linksys'
+
+Ejecute el comando 'eval' de nuevo y verás que ESSID 'linksys' se ha creado en la base de datos:
+
+Pyrit 0.3.0 (C) 2008-2010 Lukas Lueg http://pyrit.googlecode.com
+This code is distributed under the GNU General Public License v3+
+
+Connecting to storage at 'file://'... connected.
+Passwords available: 4078
+
+ESSID 'linksys' : 0 (0.00%)
+
+La base de datos contiene información suficiente para comenzar el proceso por lotes ella. Pyrit tomará todas (ESSID: password)-combinaciones, calcular las correspondientes llaves maestras por parejas y almacenar aquellos para su uso posterior.
+
+Tenga en cuenta que usted puede dejar de Pyrit de procesamiento por lotes en cualquier momento (con ctrl + c o enviar SIGTERM). Pyrit comenzará en el punto en que se detuvo la próxima vez que se inicie el proceso por lotes. Ejecute el siguiente comando para:
+
+pyrit batch
+
+... y ver cómo cruje Pyrit a través de la base de datos hasta que se queda sin trabajo:
+
+Pyrit 0.3.0 (C) 2008-2010 Lukas Lueg http://pyrit.googlecode.com
+This code is distributed under the GNU General Public License v3+
+
+Connecting to storage at 'file://'... connected.
+Working on ESSID 'linksys'
+Processed all workunits for ESSID 'linksys'; 1035 PMKs per second.
+
+Batchprocessing done.
+
+Usted puede utilizar el comando "eval" una vez más para ver si todo workunits por ESSID 'linksys' se han calculado.
+
+
+Utilizando la base de datos para atacar a un apretón de manos
+
+Ahora podemos utilizar las claves maestras por pares almacenados en la base de datos para atacar el mismo apretón de manos, como en el ejemplo anterior. En lugar de ejecutar un "passthrough-ataque", donde la base de datos no se toca en absoluto, emitimos una "base de datos-ataque" como la siguiente:
+
+pyrit -r wpapsk-linksys.dump.gz attack_db
+
+Tenga en cuenta que teníamos no especifican ESSID de la red ni su BSSID.
+
+Usted debe obtener una respuesta muy similar a la siguiente:
+
+Pyrit 0.3.0 (C) 2008-2010 Lukas Lueg http://pyrit.googlecode.com
+This code is distributed under the GNU General Public License v3+
+
+Connecting to storage at 'file://'... connected.
+Parsing file 'wpapsk-linksys.dump.gz' (1/1)...
+587 packets (587 802.11-packets), 1 APs
+
+Picked AccessPoint 00:0b:86:c2:a4:85 ('linksys') automatically.
+Attacking handshake with Station 00:13:ce:55:98:ef...
+Tried 1639 PMKs so far (39.8%); 1577435 PMKs per second.
+
+The password is 'dictionary'.
+
+Una vez más, la protección de contraseña de la red ha sido revelado.
+
+Mientras que nuestro ejemplo se utiliza una muy pequeña lista de palabras y los números de rendimiento no son así muy fiable, atacando un apretón de manos a partir de una base de datos de pre-calculada maestra en pares Claves por lo general crujir a través de más de un millón de contraseñas por segundo. También puede ejecutar una base de datos-ataque contra el segundo archivo de captura "WPA2PSK-linksys.dump.gz ', que también tendrá el uso de las pre-computados maestra en pares Keys.
+
+
+La ampliación: El uso de un base de datos SQL como almacenamiento
+
+Usando una base de datos SQL en lugar del sistema de archivos le dará algunos beneficios:
+• Bienes ACID-cumplimiento, copia de seguridad y de equilibrio de carga-características.
+• Múltiples Pyrit-clientes pueden operar en la misma base de datos al mismo tiempo en la red.
+• -Meta-datos binarios y se (posiblemente) almacenan independientes uno de otro, haciendo más fácil la base de datos para consultar y operar.
+
+Pyrit utiliza SQLAlchemy y se puede utilizar para ello todo tipo de bases de datos SQL-por su mecanismo de almacenamiento interno: SQLite tiene todos los beneficios descritos anteriormente (excepto la red de funcionalidad), MySQL y PostgreSQL requieren alguna configuración, pero ofrecen más funciones y mejor escala. Consulte SQLAlchemy documentación 's para más detalles acerca de las bases de datos soportadas.
+
+Utilizando una base de datos como almacenamiento es muy fácil - todo lo que tienes que hacer es proporcionar una cadena de conexión alternativa en lugar de 'file://' que Pyrit usa por defecto (consulte el Manual para obtener más información acerca de la cadena de conexión). En el siguiente ejemplo, se utiliza una base de datos SQLite almacena en el archivo single 'mydb.db':
+
+pyrit -u sqlite:///mydb.db -i dict.gz import_passwords
+
+Tenga en cuenta que nosotros no tenemos que preocuparse por la creación de la base de datos (en el caso de SQLite) o las tablas que contiene. Pyrit se hará cargo de esto. Usted debe obtener una producción muy similar a esto:
+
+Pyrit 0.3.0 (C) 2008-2010 Lukas Lueg http://pyrit.googlecode.com
+This code is distributed under the GNU General Public License v3+
+
+Connecting to storage at 'sqlite:///mydb.db'... connected.
+10202 lines read. Flushing buffers...
+All done.
+
+La creación de una o MySQL PostgreSQL-servidor está más allá del alcance de este tutorial. Sin embargo, después de configurar el-servidor de base de datos, la creación de una base de datos (vacío) y proporcionar las credenciales necesarias, los pasos necesarios en Pyrit son los mismos que anteriormente. Por ejemplo, para utilizar la base de datos 'pyrit' (ya creado) en un servidor PostgreSQL en 192.168.0.7 con usuario pyrit 'y una contraseña, su línea de comandos podría ser algo como esto:
+
+pyrit -u postgres://pyrit:@192.168.0.7/pyrit -e linksys create_essid
+
+Para hacer la vida un poco más fácil, puede guardar la cadena de conexión predeterminada en Pyrit de configuración-archivo en '~/.pyrit/config'. Cambie el valor de la default_storage clave para una cadena de conexión nueva y usted no tendrá que suministrarla cada vez. 
