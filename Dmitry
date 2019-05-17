@@ -1,0 +1,114 @@
+Dmitry tiene la capacidad de dar tanta información como sea posible sobre un host. Se puede utilizar para realizar búsquedas de Internet ,número whois, recuperar la hora del sistema y los datos del servidor. La capacidad de realizar búsquedas de subdominios en un objetivo. Tambien realiza la exploracionn de los puertos TCP.
+
+Sintaxis
+
+dmitry [ -winsepfb] [ -t 0-9] [ -o %host.txt] host
+
+
+Opciones
+
+-o nos permite especificar un nombre dado a nuestra salida el valor predeterminado es host.txt usted podría nombrar lo que quieras.
+-i nos permite realizar una búsqueda whois de la dirección IP de un host, esto nos dice que si nosotros no sólo el nombre que se encuentra el dmitry IP para nosotros.
+-w realizará una búsqueda whois sobre el nombre de dominio de un huésped.
+-n nos dará información Netcraft.com en una máquina (si usted no sabe acerca de netcraft.com luego ir a tomar una mirada que usted no será decepcionado).
+-s realiza una búsqueda de posibles subdominios (www.yourexampleofanetwork.com ser un dominio de nivel superior y www.yoursitexample.yourexampleofanetwork.com ser un subdominio.)
+-e realizará una búsqueda de direcciones de correo electrónico posibles. (Youremail@yournetwork.com)
+-p llevará a cabo un escaneo de puertos TCP en un host
+-f llevará a cabo un escaneo de puertos TCP en un host que muestra los puertos de salida de informes filtrados (útil si hay un cortafuegos en su lugar)
+-b se informe a una bandera recibida de un puerto de la máquina (Tenga en cuenta que esto sólo funcionará si el puerto nos envía una bandera cuando se escanea).
+(Esto puede revelar algún tipo de software que se ejecuta en un puerto determinado.)
+-T 0-9 se utiliza para establecer el TTL en cuestión de segundos cuando se explora el valor por defecto es 2
+El * significa que la opción-p también se debe configurar para que funcione.
+
+
+Ejemplos
+
+dmitry-winsepffb-o hosts.txt www.yourexampleofanetwork.com
+
+Ok por lo que vemos que vamos a utilizar todas las banderas disponibles para nosotros para recabar información tanto de nuestro objetivo como sea posible y escribir la información en un archivo llamado
+hosts.txt La siguiente parte es el nombre de dominio de nuestro destino.
+
+Ahora viene la parte buena, lo primero que se ve es que dmitry está escribiendo el resultado en nuestro archivo.
+A continuación debería ver:
+
+HostIP: 192.168.1.1
+HostName: www.yourexampleofanetwork.com
+
+A continuación vamos a ver:
+
+Reunidos Inet-whois información para 192.168.1.1
+Se le proporcionará un montón de información whois sobre la dirección IP
+No voy a imprimir todo aquí para usted, sino más bien, whois debe darle el nombre de la Organización y la información de dirección. Además de información sobre la propia red
+Usted debe ver los rangos netos por ejemplo los netnames y su fecha de registro.
+A continuación, debería ver:
+
+Reunidos INIC-whois información para www.yourexampleofanetwork.com
+---------------------------------
+Nombre de dominio: YOUREXAMPLEOFANETWORK.COM
+Secretario: La información aquí Registradores
+Whois Server: whois.example.com
+URL de referencia: http://www.example.com
+Nombre del servidor: NS1.YOUREXAMPLEOFANETWORK.COM
+Nombre del servidor: NS2YOUREXAMPLEOFANETWORK.COM
+Nombre del servidor: NS3.YOUREXAMPLEOFANETWORK.COM
+Nombre del servidor: NS4.YOUREXAMPLEOFANETWORK.COM
+Estado: clientDeleteProhibited
+Estado: clientTransferProhibited
+Estado: clientUpdateProhibited
+Fecha Actualización: 10-abril-2006
+Fecha de creación: 15-septiembre-1997
+Fecha de Vencimiento: 14-septiembre-2011
+>>> Última actualización de base de datos whois: Sun, 23 de diciembre 2007 06:42:27 UTC
+De nuevo, esto proporciona más información acerca de nuestra red de destino. Ahora tenemos los servidores de nombres, así como el nombre del registrador.
+Todo esto es muy útil cuando estamos "reconning" nuestro objetivo.
+Siguiente netcraft con:
+
+La información obtenida por Netcraft www.yourexampleofanetwork.com
+---------------------------------
+Recuperación de información Netcraft.com para www.yourexampleofanetwork.com
+Sistema operativo: Winblows servidor edition2007
+WebServer: winblowswebserver v1.0
+No hay informes disponibles para el tiempo de actividad de acogida: www.yourexampleofanetwork.com
+Información recopilada Netcraft.com
+
+Ahora bien, si nuestra red objetivo estaba usando algo que no sea el servidor de mal codificados Winblows Edition 2007
+Entonces es posible que no se presenta aquí por nosotros. Lo mismo con la información de servidor web.
+Y como está tan mal codificados, vemos que no hay tiempo de actividad ya que es sólo en alrededor de una hora antes de un reinicio es necesario.
+
+La información obtenida Subdominio para www.yourexampleofanetwork.com
+---------------------------------
+Búsqueda Google.com: 80 ...
+HostName: images.yourexampleofanetwork.com
+HostIP: 192.168.1.2
+HostName: maps.yourexampleofanetwork.com
+HostIP: 192.168.1.3
+HostName: news.yourexampleofanetwork.com
+HostIP: 192.168.1.100
+HostName: www.yourexampleofanetwork.com
+HostIP: 192.168.1.1
+HostName: mail.yourexampleofanetwork.com
+HostIP: 192.168.1.5
+Encontradas 5 posibles subdominio (s) para el anfitrión yourexampleofanetwork.com, buscado 1 páginas contienen un resultado.
+Y así sucesivamente hasta que se ha buscado a través de todos los subdominios que encuentre.
+A continuación vamos a ver:
+
+Reunidos E-Mail información para yourexampleofanetwork.com
+administración ATyourexampleofanetwork DOT com
+joeuser AT yourexampleofanetwork DOT com
+
+Y finalmente la salida de nuestra TCP scan
+
+Reunidos Puerto TCP información para 192.168.1.1
+---------------------------------
+Estado rector del puerto
+20 Open
+Abierto 21
+Abierto 80
+Etc, Etc, Etc, Etc
+
+Porque www.yourexampleofanetwork.com está ejecutando el servidor Winblows edición de 2007 y dejó a todos los puertos comunes, ofrecen por defecto!
+Así que espero que este tutorial se va y usted puede comenzar a usar dmitry hacer algo de "reconning".
+
+BTW Todos los nombres y direcciones IP y correos electrónicos han sido cambiados para proteger a mí!
+Si usted alimenta a números de bloque como privados ..... 192 A continuación, los datos de whois le dirá que es para uso de red interno.
+La única parte útil de todo el escaneo será el escaneo de puertos!
