@@ -1,0 +1,28 @@
+Obtener sistema operativo
+
+nmap [Tipo de sondeo...] [Opciones] {especificación de objetivo}
+
+Opciones
+
+-O: Activar la detección de sistema operativo (SO)
+--osscan-limit: Limitar la detección de SO a objetivos prometedores
+--osscan-guess: Adivinar el SO de la forma más agresiva
+-A: Habilita la detección de SO y de version
+-sL (Sondeo de lista) El sondeo de lista es un tipo de descubrimiento de sistemas que tan solo lista cadaequipo de la/s red/es especificada/s, sin enviar paquetes de ningún tipo a los objetivos.
+-sP (Sondeo ping)Esta opción le indica a Nmap que únicamente realice descubrimiento de sistemas mediante un sondeo ping.
+-P0 (No realizar ping) Con esta opción, Nmap no realiza la etapa de descubrimiento.
+-PS [lista de puertos] (Ping TCP SYN) Esta opción envía un paquete TCP vacío con la bandera SYN puesta.
+-PA [lista de puertos] (Ping TCP ACK) Se envía un paquete con la bandera ACK
+-PU [lista de puertos] (Ping UDP) Esta opción envía un paquete UDP vacío (salvo que se especifique --data-length)
+--system-dns (Utilizar resolución DNS del sistema) Especifica esta opción si desea que sí utilice laresolución del sistema
+
+
+Ejemplo
+
+En este ejemplo agregamos -A que nos manda la salida y agrega el tipo de sistema operativo
+
+nmap -A unidadlocal.com
+
+Tambien se puede hacer con
+
+nmap -sS -O unidadlocal.com
