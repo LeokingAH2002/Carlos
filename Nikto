@@ -1,0 +1,424 @@
+nikto es un escáner de servidor web que realiza pruebas completas contra los servidores web para varios artículos, incluyendo más de 6500 archivos/CGIs potencialmente peligrosos, los controles de versiones no actualizadas de más de 1250 servidores, y los problemas específicos de la versión de más de 270 servidores. También comprueba los elementos de configuración del servidor, tales como la presencia de múltiples archivos de índice y opciones de servidor HTTP.
+
+Nikto es un proyecto robusto que lleva varios años en desarrollo y se encuentra en constante evolución. Unas de las características más interesantes de esta herramienta son la posibilidad de generar reportes en distintos formatos, la integración con LibWhisker (Anti-IDS), integración con Metasploit, entre otras.
+
+
+Sintaxis
+
+nikto -host[direccion host] [Opciones]
+
+
+Opciones
+
+-config: Indica un archivo de configuración distinto al que tenemos en el directorio de instalación config.txt.
+
+-Cgidirs: Escanea los directorios CGI. Las palabras claves ‘all’ o ‘none’ pueden utilizarse para escanear todos los directorios o ninguno respectivamente.
+
+cgi/ /cgi-a/"
+
+-dbcheck : Comprueba posibles errores en nuestra base de datos.
+
+-Display+ :Controlar la salida que Nikto muestra. Consulte el Capítulo 5 para obtener información detallada sobre estas opciones. Utilice el número de referencia o una carta para especificar el tipo. Se pueden usar múltiples:
+
+1 - Mostrar redirecciones
+2 - Mostrar las cookies recibidas
+3 - Mostrar todas las respuestas 200/OK
+4 - Mostrar URLs que requieren autenticación
+D - Salida de depuración
+E - Muestra todos los errores HTTP
+P - Imprimir el progreso en STDOUT
+V - Salida detallada
+
+-evasion+ :Habilita la detección de intrusiones por medio de técnicas de evasión (consultar documentación de LibWhisker para más información). Para elegir un tipo de detección, utilice los siguientes números (se podrían usar varios al mismo tiempo):
+
+1 - codificación URI aleatoria (no-UTF8)
+2 - Directorio de autorreferencia (/ /).
+3 - La eyaculación URL final
+4 - Anteponer cadena aleatoria larga
+5 - parámetro falso
+6 - TAB como petición espaciador
+7 - Cambiar el caso de la URL
+8 - Usar separador de directorio de Windows (\)
+A - Utilizar un retorno de carro (0x0D) como separador petición
+B - Utilice 0x0b valor binario como espaciador petición
+
+- Format+ Guarde el archivo de salida especificado con la opción-o en este formato (salida). Si no se especifica, el valor por omisión se toma de la extensión de archivo especificado en la opción-output. Los formatos válidos son:
+
+csv - una lista separada por Separado
+htm - un informe HTML
+msf - Ingresar a Metasploit
+txt - un informe de texto
+xml - un informe XML
+
+- host+Anfitrión (s) de destino. Puede ser una dirección IP, nombre de host o archivo de texto de los ejércitos. Un único guión (-) puede ser usado para stdin. También se puede analizar la salida estilo nmap-og
+
+- Help Muestra información de ayuda ampliada.
+- id+ ID y la contraseña que se utilizará para la autenticación del host básico de acogida. El formato es "id password".
+
+ass:realms
+
+-list-plugins Listará todos los plugins que Nikto puede ejecutar contra objetivos y luego se cerrará sin realizar un análisis. Estos pueden ajustarse para una sesión usando los -Plugins opción.
+El formato de salida es:
+
+Programas name
+full name - description
+Escrito por el author , Copyright (C) copyright
+
+-mutate Especifique técnica de mutación. Una mutación causará Nikto para combinar las pruebas o intentar adivinar valores. Estas técnicas pueden causar una enorme cantidad de pruebas que se lanzará contra el objetivo. Utilice el número de referencia para especificar el tipo, múltiple se puede utilizar:
+
+1 - Análisis de todos los archivos de todos los directorios raíz
+2 - Supongo que para los nombres de archivo de contraseñas
+3 - Enumerar los nombres de usuario a través de Apache (/ ~ peticiones de tipo de usuario)
+4 - Enumerar los nombres de usuario a través de cgiwrap (/ cgi-bin/cgiwrap / ~ peticiones de tipo de usuario)
+5 - Intento de nombres de sub-dominios de fuerza bruta, supongamos que el nombre de host es el dominio principal
+6 - Tratar de adivinar los nombres de directorio desde el archivo de diccionario suministrado
+
+-mutate-options Proporcionar información adicional por muta, por ejemplo, un archivo de diccionario
+
+-output Escribe la salida en el archivo especificado. El formato utilizado se tomará de la extensión de archivo. Esto puede ser sobre-riden utilizando la opción-formato (por ejemplo, para escribir archivos de texto con un Extenstion diferente. Archivos existentes tendrán nueva información adjunta.
+
+Un solo punto (.) Se puede especificar el nombre del archivo de salida, en cuyo caso se generará automáticamente el nombre de archivo basado en el objetivo de ser probado. Tenga en cuenta que se requiere la opción-Formato cuando se utiliza esta. El esquema es: nikto_HOSTNAME_PORT_TIMESTAMP.FORMAT
+
+Para '-Format msf "la opción de salida toma un significado especial. Debe contener la contraseña y la ubicación del servicio de Metasploit RPC. Por ejemplo, puede ser: '-o msf: <contraseña> @ http://localhost:55553/RPC2'
+
+-nocache Desactivar la caché de respuesta
+
+-nossl No utilizar SSL para conectarse al servidor.
+
+-no404 Desactive 404 (archivo no encontrado) la comprobación. Esto reducirá el número total de solicitudes realizadas al servidor web y puede ser preferible al comprobar un servidor a través de un vínculo lento, o un dispositivo integrado. En general, esto conducirá a más falsos positivos que se descubran.
+
+-port + El puerto TCP (s) para apuntar. Para probar más de un puerto en el mismo host, especifique la lista de puertos en la opción-p (puertos). Los puertos se pueden especificar como un rango (es decir, 80-90), o como una lista separada por comas, (es decir, 80,88,90). Si no se especifica, el puerto 80 se utiliza.
+
+-Plugins+ Seleccione el que se ejecutarán los plugins en los objetivos especificados. Una lista separada por punto y coma debe proporcionarse el que se enumeran los nombres de los plugins. Los nombres se pueden encontrar mediante el uso-list-plugins.
+Hay dos entradas especiales: @ @ ALL, que especifica todos los plugins se ejecutan y @ @ NINGUNO, que especifica ningún plugins se ejecutan. El valor predeterminado es @ @ DEFAULT
+
+-root + Anteponer el valor especificado al principio de cada solicitud. Esto es útil para aplicaciones de prueba o servidores web que tienen todos sus archivos bajo un directorio determinado.
+
+ory
+
+-ssl Sólo probar SSL en los puertos especificados. Con esta opción se acelerará dramáticamente peticiones a puertos HTTPS, ya que de lo contrario la solicitud HTTP tendrá que timeout primero.
+
+-Single Unico modo de respuesta
+
+-timeout+ Segundos de espera antes de que se agote el tiempo una solicitud. Tiempo de espera predeterminado es de 10 segundos.
+
+-Tuning+ Opciones de optimización controlarán la prueba que Nikto utilizará contra un objetivo. De forma predeterminada, se realizan todas las pruebas. Si no se especifica ninguna opción, se llevarán a cabo únicamente las pruebas. Si se utiliza la opción de "x", que será invertir la lógica y excluir sólo aquellas pruebas. Utilice el número de referencia o una carta para especificar el tipo, múltiple se puede utilizar:
+
+0 - Subir archivo
+1 - El archivo Interesante / Visto en los registros
+2 - Mala configuración / archivo predeterminado
+3 - Divulgación de información
+4 - Inyección (XSS / Guión / HTML)
+5 - Recuperación de archivos remotos - Inside Root Web
+6 - Denegación de servicio
+7 - Recuperación de archivos remoto - Servidor ancha
+8 - Ejecución de comandos / Shell remoto
+9 - Inyección SQL
+a - Bypass de autenticación
+b - Identificación de Software
+c - Inclusión Fuente remoto
+x - Opciones de optimización inversa (es decir, incluyen todos excepto especificado)
+La cadena dada será analizada de izquierda a derecha, los personajes de x se aplicarán a todos los caracteres a la derecha del carácter.
+
+-update Actualización de los plugins y bases de datos directamente desde cirt.net.
+
+-vhost Especifique el encabezado de host que se enviará a la meta.
+
+-Version Muestra las versiones de software, plugins y base de datos de Nikto.
+
+Técnicas de mutación
+
+Una mutación causará Nikto para combinar las pruebas o intentar adivinar valores. Estas técnicas pueden causar una enorme cantidad de pruebas que se lanzará contra el objetivo. Utilice el número de referencia para especificar el tipo, múltiple puede ser combinada.
+
+1.Análisis de todos los archivos con todos los directorios raíz. Esto toma cada prueba y la divide en una lista de archivos y directorios. Una lista de exploración es entonces creado mediante la combinación de cada archivo en cada directorio.
+
+2.Adivina los nombres de archivo de contraseña. Toma una lista de nombres comunes de archivos de contraseñas (como "passwd", "pasar", "contraseña") y extensiones de archivo ("txt", "pwd", "bak", etc) y genera una lista de archivos para comprobar para.
+
+3.Enumerar los nombres de usuario a través de Apache (/ ~ peticiones de tipo de usuario). Explotar una mala configuración de Apache UserDir configuraciones que permite a los nombres de usuario válidos por descubrir. Este tratará de fuerza bruta nombres de usuario supongo. Un archivo de usuarios conocidos también puede ser suministrada por proporcionar el nombre del archivo en el -mutate-options parámetro.
+
+4.Enumerar los nombres de usuario a través de cgiwrap (/ cgi-bin/cgiwrap / ~ peticiones de tipo de usuario). Explotar una falla en cgiwrap que permite nombres de usuario válidos por descubrir. Este tratará de fuerza bruta nombres de usuario supongo. Un archivo de usuarios conocidos también puede ser suministrada por proporcionar el nombre del archivo en el -mutate-options parámetro.
+
+5.Intento de forzar los nombres de subdominios bruta. Este tratará de fuerza bruta conocer los nombres de dominio, se asumirá que el host dado (sin www) es el dominio principal.
+
+6.Intento de nombres de directorio bruta. Esta es la única opción de mutar que requiere un archivo para ser aprobada en la -mutate-options parámetro. Se usará el fichero dado para tratar de adivinar los nombres de directorio. Las listas de los directorios comunes se pueden encontrar en el proyecto DirBuster OWASP.
+
+
+Mostrar
+
+Por defecto sólo se muestra información básica sobre el objetivo y las vulnerabilidades. Uso de la -Display de parámetros puede producir más información para problemas de depuración.
+
+•1 - Mostrar las redirecciones. Esto mostrará todas las solicitudes que provocan una respuesta de "reorientar" desde el servidor.
+
+•2 - Mostrar las cookies recibidas. Esto mostrará todas las cookies que fueron enviados por el host remoto.
+
+•3 - Mostrar todas las respuestas 200/OK. Esto le mostrará todas las respuestas que provocan un (200) Respuesta de "bien" desde el servidor. Esto podría ser útil para la depuración.
+
+•4 - Mostrar URLs que requieren autenticación. Esto le mostrará todas las respuestas que provocan una cabecera "Autorización necesaria".
+
+•D - Salida de depuración. Mostrar resultados de depuración, que muestra la salida detallada e información adicional, como el contenido variable.
+
+•E - Muestra todos los errores HTTP. Mostrar detalles de cualquier error HTTP encontrado.
+
+•P - Imprimir el progreso a STDOUT. Mostrar informe de estado para STDOUT durante la prueba (set intervalo en nikto.conf).
+
+•V - Salida detallada. Mostrar resultados detallados, que suele mostrar cuando Nikto es durante la ejecución del programa.
+
+•E - Salida de error. Mostrar todas las comunicaciones HTTP y errores, que muestran una gran cantidad de la producción en algunos servidores.
+
+
+Escanear Puesta a punto
+
+Tuning Scan se puede utilizar para reducir el número de pruebas realizadas contra un objetivo. Al especificar el tipo de prueba para incluir o excluir, la prueba más rápida centrado se puede completar. Esto es útil en situaciones en las que la presencia de ciertos tipos de archivos no deseados - como XSS o simplemente archivos "interesantes".
+
+Los tipos de prueba pueden ser controlados a nivel individual, especificando su identificador al -T ( -Tuning opción). En el modo predeterminado, si -T se invoca se ejecutará sólo el tipo de prueba (s) especificado. Por ejemplo, sólo las pruebas de "recuperación de archivos remoto" y "Ejecución de comandos" se realizó en contra de la meta:
+nikto -h 192.168.0.1-T 58
+
+Si se pasa una "x" para -T entonces esto va a negar todas las pruebas de los tipos siguientes a la x. Esto es útil cuando una prueba puede comprobar varios tipos diferentes de explotación. Por ejemplo:
+nikto -h 192.168.0.1-T 58xb
+
+Las opciones de ajuste válidos son:
+
+•Subir Archivo - 0. Exploits que permiten que un archivo sea cargado en el servidor de destino.
+
+•1 - Interesante Archivo / Visto en los registros. Un archivo o un ataque desconocido, pero sospecha que se ha visto en los registros del servidor web (Nota: Si usted tiene información sobre alguno de estos ataques, por favor póngase en contacto con CIRT, Inc.).
+
+•2 - La configuración errónea / Default File. Por defecto los archivos o los archivos que han sido mal configurado de alguna manera. Esto podría ser documentación, o un recurso que debe ser protegido con una contraseña.
+
+•3 - la divulgación de información. Un recurso que revela información sobre el objetivo. Esto podría ser una ruta de sistema de archivos o nombre de cuenta.
+
+•4 - Inyección (XSS / Guión / HTML). Cualquier forma de inyección, incluyendo cross site scripting (XSS) o de contenido (HTML). Esto no incluye la inyección de comandos.
+
+•5 - Recuperación de archivos remotos - Inside Root Web. Recursos permite a los usuarios remotos para recuperar los archivos no autorizados en el directorio raíz del servidor web.
+
+•6 - Denegación de servicio. Recursos permite una denegación de servicio contra la aplicación de destino, el servidor web o el host (nota: no intencionales ataques DoS se intenta).
+
+•7 - Recuperación de archivos remoto - Servidor ancha. Recursos permite a los usuarios remotos para recuperar archivos no autorizados desde cualquier punto de la diana.
+
+•8 - Ejecución de comandos / Shell remoto. Recursos permite al usuario ejecutar un comando del sistema o desovar un shell remoto.
+
+•9 - Inyección SQL. Cualquier tipo de ataque que permite SQL para su ejecución contra una base de datos.
+
+•a - Bypass de Autenticación. Permite al cliente para acceder a un recurso que no se debe permitir que acceder.
+
+•b - Identificación de Software. Software o programas instalados podrían ser identificados positivamente.
+
+•c - la inclusión de origen remoto. El software permite la inclusión remota de código fuente.
+
+•x - Invertir Opciones de optimización. Realizar la exclusión del tipo de afinación especificada en lugar de la inclusión del tipo de afinación especificada.
+
+
+Replay solicitudes guardadas
+
+Al utilizar la funcionalidad Guardar (-Save), hallazgos peticiones se guardan en archivos de texto. Mientras que estos archivos contienen texto legible por humanos, también contienen JSON representaciones de la solicitud y la respuesta. Esta solicitud JSON se puede reproducir mediante el script "replay.pl".
+
+El replay.pl lee y analiza un archivo guardado mediante el fichero de opciones, y se puede ejecutar opcionalmente la solicitud a través de un proxy, como eructar. Esto permitirá una mayor exploración de vulnerabilidades en un programa más adecuado para reproducir y enviar ataques.
+
+Replay-file localhost savedir_host_80_2012-09-11-00-07-42/host_80_2012-09-11_002114.txt-proxy: 8080
+-------------------------------------------- Info
+Solicitar a: http://host:80/manual/
+Prueba ID: 002114
+OSVDB ID: 3092
+Mensaje: OSVDB-3092: manual / /: manual del servidor Web encontró.
+-------------------------------------------- Respuesta
+Fecha: mar, 11 de septiembre 2012 04:14:20 GMT
+server: Apache/2.2.21 (Unix) mod_ssl/2.2.21 OpenSSL/0.9.8r DAV / 2 PHP/5.3.10 con Suhosin-Patch
+Content-Location: index.html.en
+variar: negociar, aceptar y lenguaje, accept-charset
+TCN: elección
+última modificación: mar, 06 de septiembre 2011 02:41:54 GMT
+etag: "15eb9df-1F07-4ac3cc53d8080; 15eb9dd-32b-4ac3cc53d8080"
+aceptar rangos de bytes:
+Content-Length: 7943
+keep-alive: timeout = 5, max = 100
+conexión: Keep-Alive
+content-type: text / html
+content-language: es
+
+<? Xml version = "1.0" encoding = "ISO-8859-1">
+<DOCTYPE HTML PUBLIC "- / / W3C / / DTD XHTML 1.0 Strict / / EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="en"> <head> <! -
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Este archivo se genera a partir de fuentes xml: NO EDITAR
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+->
+<title> Apache HTTP Server Versión 2.2
+Documentación - Apache HTTP Server </ title>
+...
+
+
+Selección de Programas
+
+Desde Nikto 2.1.2 plugins se pueden seleccionar de forma individual y pueden tener parámetros pasados ​​a ellos.
+
+Una cadena selección complemento puede pasar en la línea de comandos a través de la -Plugin parámetro. Consiste en una lista separada por punto y coma de nombres de plugin con parámetros opcionales colocados entre paréntesis. En forma sencilla una declaración plugin es así:
+
+plugin-name [( parameter name [: parameter value ], [ other parameters ])]
+
+Por ejemplo, podemos hacer:
+
+pruebas (informe: 500, detallado)
+
+Que establecerá el informe de parámetros a un valor de 500 y detallado a un valor de 1. Los parámetros y los nombres de los plugins se encuentran estar en ejecución:
+
+. / Nikto.pl-list-plugins
+
+Esto también significa que desaprobar las opciones mutan y reemplazarlos con los parámetros pasados ​​a plugins, por lo que las opciones mutan ahora traducen internamente a:
+
+1.pruebas (todos)
+
+2.pruebas (passfiles)
+
+3.apacheusers (enumerate, hogar [, diccionario: dict.txt])
+
+4.apacheusers (enumerate, cgiwrap [, diccionario: dict.txt])
+
+5.subdominio
+
+6.(diccionario: dict.txt) Diccionario
+
+
+Macros para los conjuntos de plugins comúnmente administrados también pueden definirse en nikto.conf, la falta de pago son las siguientes:
+@ @ Mutar = diccionario; subdominio
+@ @ DEFAULT = @ @ ALL, - @ @ mutar; pruebas (informe: 500)
+
+Éstos se expanden mediante-list-plugins y puede ser anulado a través-Plugins.
+
+En total, esto puede permitir que un conjunto personalizado de plugins que pueden necesitar que se ejecute en un contexto determinado. Por ejemplo, si una prueba normal compró que el servidor era vulnerable al ataque XSS apache esperar encabezado y queremos ejecutar una prueba sólo para ver que es vulnerable mediante la adición de depuración, podemos ejecutar:
+
+nikto -host target.txt-Plugins "apache_expect_xss (detallado, debug)"
+
+Y a continuación, comprobar manualmente la salida para ver si era realmente vulnerable.
+
+Cabe señalar que los informes también son plugins, así que si usted necesita para personalizar la cadena plugin y quiere una salida, incluya el plugin informe:
+
+apacheusers.xml-output;: nikto.pl-host "report_xml apacheusers (users.txt enumerate, diccionario)" targets.txt-Plugins
+
+
+Ejemplos
+
+La más básica exploración requiere simplemente de un host de destino, ya que el puerto 80 se asume si no se especifica ninguno. El anfitrión puede ser una IP o un nombre de host de una máquina, y se especifica mediante la opcion -h ( -host ). Esto buscará la nombre de dominio wvw.kalilinux.foroactivo.com en el puerto TCP 80:
+
+nikto -host wvw.kalilinux.foroactivo.com
+
+Manual nikto para Kali Linux Nikto10
+
+Para comprobar en un puerto diferente, especifique el número de puerto con el -p ( -port ) opción. Esto buscará la IP 192.168.0.1 en el puerto TCP 443:
+
+nikto -h 192.168.0.1 -p 443
+
+Hosts, puertos y protocolos también se pueden especificar mediante el uso de una sintaxis URL completa, y será escaneada:
+
+nikto -h https://192.168.0.1:443/
+
+No hay necesidad de especificar que el puerto 443 puede ser SSL, como Nikto primera prueba de HTTP normal y, si falla HTTPS,. Si está seguro de que es un servidor SSL, especifique -s ( -ssl ) acelerará la prueba.
+
+nikto -h 192.168.0.1 -p 443 -ssl
+
+Pruebas más complejas se pueden realizar utilizando el -mutate parámetro, como se detalla más adelante. Esto puede producir pruebas adicionales, algunos de los cuales pueden ser suministrados con parámetros adicionales a través de la -mutate-options parámetro. Por ejemplo, con -mutate 3, con o sin un archivo de los intentos de fuerza bruta los nombres de usuario si el servidor web permite a ~ user URI:
+
+nikto -h 192.168.0.1 -mutan 3 -mutan -opciones de usuario list.txt
+
+
+Prueba de puerto múltiple
+
+Apoyo Nikto escaneo de múltiples hosts en la misma sesión a través de un archivo de texto con los nombres de host o direcciones IP. En lugar de dar un nombre de host o la dirección IP de la -h ( -host ) opción, un nombre de archivo se puede dar. Un archivo de hosts debe estar formateada como un host por línea, con el número de puerto (s) al final de cada línea. Los puertos pueden ser separados del huésped y otros puertos a través de un colon o una coma. Si no se especifica el puerto, el puerto 80 se supone.
+
+Este es un ejemplo de un archivo de hosts válidos:
+
+Los anfitriones de archivo válido
+
+192.168.0.1:80
+http://192.168.0.1:8080/
+192.168.0.3
+
+
+Para los usuarios de win32: debido a peculiaries en la forma en que trabaja con tubos de cmd.exe, el ejemplo anterior puede no funcionar para usted. En este caso, un archivo temporal tendrá que ser utilizado para almacenar la salida de nmap
+
+Un archivo de huésped también puede ser una salida en nmap "greppable" formato (es decir, desde la salida de-OG).
+
+Un archivo puede ser pasado a través de Nikto stdout / stdin con un "-" como el nombre de archivo. Por ejemplo:
+
+192.168.0.0/24 nmap-p80-OG - | nikto -h -
+
+
+El uso de un proxy
+
+Si el equipo que ejecuta Nikto sólo tiene acceso al host de destino (o servidor de actualizaciones) a través de un proxy HTTP, la prueba todavía se puede realizar. Hay dos maneras de usar un proxy con Nikto, a través del archivo nikto.conf o directamente en la línea de comandos.
+
+Para utilizar el archivo nikto.conf, establezca los PROXY* variables (como se describe en la sección 4) y, a continuación, ejecutar Nikto con la opción-UseProxy. Todas las conexiones serán retransmitidos a través del proxy HTTP especificado en el archivo de configuración.
+
+nikto -h localhost -p 80 -UseProxy
+
+Para configurar el proxy en la línea de comandos, utilice la opción-UseProxy con el conjunto de proxy como argumento, por ejemplo:
+
+Nikto -h localhost-UseProxy http://localhost:8080/
+
+
+Actualización de
+
+Nikto puede ser actualizado automáticamente, siempre que se tenga conexión a Internet desde el ordenador Nikto está instalado. Para actualizar a las últimas plugins y bases de datos, simplemente ejecute Nikto con el comando update-.
+
+nikto -update
+
+Si se requiere una actualización, aparecerá una lista de los archivos descargados:
+
+nikto.pl perl-update
++ Recuperación 'nikto_core.plugin'
++ Recuperación 'CHANGES.txt'
+
+
+Integración con Nessus
+
+Nessus ( http://www.nessus.org/nessus/ ) se puede configurar para iniciar automáticamente Nikto cuando encuentra un servidor web. Asegúrese de Nikto funciona correctamente, nikto.pl que se encuentra en el camino, y que nikto.nasl está presente en la instalación de Nessus. 'Nessusd-R' Ejecutar a continuación, reinicie nessusd.
+
+Ver http://blog.tenablesecurity.com/2008/09/using-nessus-to.html para obtener instrucciones detalladas.
+
+
+Funciones Interactivas
+
+Nikto contiene varias opciones que se pueden cambiar durante una exploración activa, siempre que se ejecuta en un sistema que proporciona apoyo POSIX, que incluye * nix y otros sistemas operativos. En los sistemas sin soporte POSIX, estas características serán silenciosamente desactivada.
+
+Durante una exploración activa, al pulsar cualquiera de las teclas inferiores se enciende o apaga la función de lista o realizar la acción indicada. Tenga en cuenta que se trata de mayúsculas y minúsculas.
+
+
+SPACE - Informe de estado de escaneo actual
+
+•v - Gire el modo detallado de encendido / apagado
+
+•d - Activa el modo debug on / off
+
+•e - Encienda el informe de errores de encendido / apagado
+
+•p - Informes Turn avance de encendido / apagado
+
+•r - Activar redirección DISPLAY ON / OFF
+
+•c - Girar pantalla galleta de encendido / apagado
+
+•o - Activar la visualización Aceptar on / off
+
+•a - Encienda la pantalla de autenticación de encendido / apagado
+
+•q - Salir
+
+•N - host Siguiente
+
+•P - Pausa
+
+
+Formatos de exportación
+
+Nikto permite la salida se guardan en una variedad de formatos, incluyendo texto, CSV, HTML, XML, NBE y exportación de Metasploit. Cuando se utiliza -output , un formato de salida se puede especificar con -Format .
+
+Si no hay ningún -Format se especifica, Nikto tratará de adivinar el formato de la extensión de archivo. Si Nikto no puede adivinar el formato de archivo de salida y luego sólo se enviará a la salida estándar
+
+El DTD para el formato XML Nikto se puede encontrar en el 'docs' directorio (nikto.dtd).
+
+
+HTML y XML Personalización
+
+Informes HTML se generan a partir de los archivos de plantillas ubicadas en la templates de directorio. Las variables se definen como #variable-name , y se sustituyen cuando se genera el informe. El archivos htm_start.tmpl y htm_end.tmpl se incluyen al principio y al final del informe (respectivamente). El htm_summary.tmpl también aparece al principio del informe. El htm_host_head aparece una vez para cada huésped, y el htm_host_item.tmpl y htm_host_im.tmpl aparecer una vez por cada elemento encontrado en un host y cada "mensaje informativo" por host (respectivamente).
+
+Todas las variables válidas se utilizan en estas plantillas. Las versiones futuras de esta documentación incluirá una lista de variables y su significado.
+
+Las declaraciones de copyright no debe ser retirado de la htm_end.tmpl sin ponerlos en otra de las plantillas. Es una violación de la licencia Nikto para eliminar estos avisos.
